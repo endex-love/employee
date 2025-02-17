@@ -1,0 +1,17 @@
+.container {
+    margin-top: 20px;
+  }
+  
+  h1 {
+    margin-bottom: 20px;
+  }
+  
+  .list-group-item {
+    display: flex;
+    align-items: center; /* Center items vertically */
+  }
+  
+  .icon {
+    color: black; /* Set icon color to black */
+    margin-right: 10px; /* Space between icon and text */
+  }

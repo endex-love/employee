@@ -8,7 +8,9 @@
 /* Body styles */
 body {
     font-family: Arial, sans-serif;
-    background-color: #1d9746;
+    background-image: url('./employee.jpeg'); /* Path to your background image */
+    background-size: cover; /* Cover the entire screen */
+    background-position: center; /* Center the image */
     margin: 0;
     padding: 0;
 }
@@ -18,7 +20,7 @@ body {
     max-width: 400px;
     margin: 100px auto; /* Center the container */
     padding: 30px;
-    background: #fff;
+    background: rgba(53, 6, 129, 0.9); /* Slightly transparent white background */
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }

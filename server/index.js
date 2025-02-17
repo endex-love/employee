@@ -1,13 +1,20 @@
 import express from 'express';
 import cors from 'cors';
-import authRouter from'./routes/auth.js'
+import { adminRouter } from './routes/AdminRoute.js';
 
 const app = express();
-app.use(cors());
-app.use(express.json());
-app.use('/api/auth',authRouter)
 
-const PORT = process.env.PORT || 3000; // Fallback to 3000 if PORT is not set
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+// CORS configuration
+app.use(cors({
+  origin: ["http://localhost:5173"], // Removed trailing slash
+  methods: ['GET', 'POST', 'PUT'],
+  credentials: true
+}));
+
+app.use(express.json()); // Middleware to parse JSON
+
+app.use('/auth', adminRouter); // Use the admin router for /auth routes
+
+app.listen(5000, () => {
+  console.log("Server is running on port 5000");
+});  

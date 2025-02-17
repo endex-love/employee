@@ -1,42 +1,50 @@
-import axios from 'axios'
+import axios from 'axios';
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './login.css';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
-  // State for username, password, and remember me
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [values, setValues] = useState({ email: '', password: '' });
   const [rememberMe, setRememberMe] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false); // Loading state
 
-  // Handle form submission
-  const handleSubmit = async(e) => {
+  const navigate = useNavigate();
+  axios.defaults.withCredentials =true;
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    try{
-      const response = await axios.post("http://localhost:3000/api/auth/login " ,{email,password})
-      if(response.data.sucess){
-        alert("sucessully login")
-      }
+    const { email, password } = values;
 
-    } catch(error){
-      if(error.response && !error.response.data.sucess){
-        setError(error.response.data.error)
-      } else
-    {
-      setError("sever error")
-    }}
-
-    // Basic validation
-    if (!username || !password) {
+    if (!email || !password) {
       setError('Please fill in both fields.');
       return;
     }
 
-    console.log('Logging in with:', { username, password, rememberMe });
-    setError('');
-    setUsername('');
-    setPassword('');
+    setLoading(true); // Start loading
+
+    try {
+      const response = await axios.post("http://localhost:5000/auth/adminlogin", values);
+      
+      if (response.data.loginStatus) { // Check if login is successful
+        navigate('/auth/dashboard'); // Redirect to dashboard
+      } else {
+        setError(response.data.error || "Login failed.");
+      }
+
+    } catch (error) {
+      if (error.response && error.response.data.error) {
+        setError(error.response.data.error);
+      } else {
+        setError("Server error");
+      }
+    } finally {
+      setLoading(false); // End loading
+    }
+
+    // Reset input fields only on successful login
+    // setValues({ email: '', password: '' });
   };
 
   return (
@@ -44,17 +52,17 @@ const Login = () => {
       <h2 className="text-white" style={{ fontSize: '2rem' }}>Employee Management System</h2>
       <div className="border shadow p-4" style={{ width: '100%' }}>
         <h1 className="text-2xl font-bold mb-4">Login</h1>
-        {error &&<p class name="text-red-500">{error}</p>}
+        {error && <p className="text-danger">{error}</p>}
         
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label htmlFor="username" className="form-label"><strong>Email:</strong></label>
+            <label htmlFor="email" className="form-label"><strong>Email:</strong></label>
             <input
               type="text"
-              id="username"
+              id="email"
               className="form-control"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              value={values.email}
+              onChange={(e) => setValues({ ...values, email: e.target.value })}
               placeholder="Enter your email"
               required
             />
@@ -65,8 +73,8 @@ const Login = () => {
               type="password"
               id="password"
               className="form-control"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={values.password}
+              onChange={(e) => setValues({ ...values, password: e.target.value })}
               placeholder="Enter your password"
               required
             />
@@ -81,8 +89,9 @@ const Login = () => {
             />
             <label htmlFor="rememberMe" className="form-check-label">Remember Me</label>
           </div>
-          {error && <p className="text-danger">{error}</p>}
-          <button type="submit" className="btn btn-primary w-100">Login</button>
+          <button type="submit" className="btn btn-primary w-100" disabled={loading}>
+            {loading ? 'Logging in...' : 'Login'}
+          </button>
         </form>
         <div className="mt-3">
           <a href="#" className="text-primary">Forgot Password?</a>
