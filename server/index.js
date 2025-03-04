@@ -1,20 +1,32 @@
-import express from 'express';
-import cors from 'cors';
-import { adminRouter } from './routes/AdminRoute.js';
+import express from "express";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import { adminRouter } from "./routes/AdminRoute.js";
 
 const app = express();
+const PORT = 5000;
 
-// CORS configuration
-app.use(cors({
-  origin: ["http://localhost:5173"], // Removed trailing slash
-  methods: ['GET', 'POST', 'PUT'],
-  credentials: true
-}));
+// Middleware
+app.use(express.json());
+app.use(cors({ origin: "http://localhost:5173", credentials: true })); // Updated origin
+app.use(cookieParser());
 
-app.use(express.json()); // Middleware to parse JSON
+// Routes
+app.use("/auth", adminRouter);
+console.log("Routes mounted");
 
-app.use('/auth', adminRouter); // Use the admin router for /auth routes
+// Global error handler
+app.use((err, req, res, next) => {
+    console.error("Global error:", err.stack);
+    res.status(500).json({ status: false, error: "Something went wrong on the server" });
+});
 
-app.listen(5000, () => {
-  console.log("Server is running on port 5000");
-});  
+// Catch unhandled exceptions
+process.on('uncaughtException', (err) => {
+    console.error('Uncaught exception:', err);
+});
+
+// Start server
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
